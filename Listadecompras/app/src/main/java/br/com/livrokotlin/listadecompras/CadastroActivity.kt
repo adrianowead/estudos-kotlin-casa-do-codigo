@@ -13,15 +13,29 @@ class CadastroActivity : AppCompatActivity() {
         // ao clicar no botão de inserir
         btn_inserir.setOnClickListener {
             val produto = txt_produto.text.toString()
+            val qtd = txt_qtd.text.toString()
+            val valor = txt_valor.text.toString()
 
             // inserir apenas se não estiver vazia
-            if( produto.isNotEmpty() ){
+            if( produto.isNotEmpty() && qtd.isNotEmpty() && valor.isNotEmpty() ){
+
+                val prod = Produto(produto, qtd.toInt(), valor.toDouble(), null)
+
+                // adicionando na variável global
+                produtosGlobal.add(prod)
+
                 // limpar o campo ao inserir
                 txt_produto.text.clear()
+                txt_qtd.text.clear()
+                txt_valor.text.clear()
             }
             // caso contrário, disparar um erro
             else {
-                txt_produto.error = "Preencha um valor"
+                txt_produto.error = if(produto.isNotEmpty()) "Preencha o nome do produto" else null
+
+                txt_qtd.error = if(qtd.isNotEmpty()) "Preencha a quantidade" else null
+
+                txt_valor.error = if(valor.isNotEmpty()) "Preencha o valor" else null
             }
         }
     }
