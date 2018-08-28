@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.startActivity
 import java.text.NumberFormat
 import java.util.*
 
@@ -40,11 +41,8 @@ class MainActivity : AppCompatActivity() {
 
         // ao clicar no botão de adicionar
         btn_adicionar.setOnClickListener {
-            // cirando uma Intent explícita para abrir a tela de cadastro
-            val intent = Intent(this, CadastroActivity::class.java)
-
-            // iniciando a atividade
-            startActivity(intent)
+            // acessando a tela de cadastro
+            startActivity<CadastroActivity>()
         }
 
         // ligando o adaptador no elemento de tela
