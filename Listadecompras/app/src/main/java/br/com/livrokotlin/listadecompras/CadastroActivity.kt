@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_cadastro.*
+import org.jetbrains.anko.db.insert
+import org.jetbrains.anko.toast
 
 class CadastroActivity : AppCompatActivity() {
 
@@ -30,15 +32,29 @@ class CadastroActivity : AppCompatActivity() {
             // inserir apenas se não estiver vazia
             if( produto.isNotEmpty() && qtd.isNotEmpty() && valor.isNotEmpty() ){
 
-                val prod = Produto(produto, qtd.toInt(), valor.toDouble(), imageBitmap)
+                database.use{
+                    // inserindo no banco de dados
+                    val idProduto = insert("produtos",
+                            "nome" to produto,
+                            "quantidade" to qtd,
+                            "valor" to valor,
+                            "foto" to imageBitmap?.toByteArray() // caso tenha um bitmap,
+                            // convertendo para byteArray, para ser compatível com o tipo BLOB
+                            // utilizando a extensão criada no arquivo Utils.kt
+                    )
 
-                // adicionando na variável global
-                produtosGlobal.add(prod)
+                    if(idProduto != -1L){
+                        toast("Item inserido com sucesso!")
 
-                // limpar o campo ao inserir
-                txt_produto.text.clear()
-                txt_qtd.text.clear()
-                txt_valor.text.clear()
+                        // limpar o campo ao inserir
+                        txt_produto.text.clear()
+                        txt_qtd.text.clear()
+                        txt_valor.text.clear()
+                    }
+                    else{
+                        toast("Erro ao inserir no banco de dados")
+                    }
+                }
             }
             // caso contrário, disparar um erro
             else {
