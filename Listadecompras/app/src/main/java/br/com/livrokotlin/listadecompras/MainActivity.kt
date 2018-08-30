@@ -5,7 +5,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.db.parseList
+import org.jetbrains.anko.db.rowParser
+import org.jetbrains.anko.db.select
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 import java.text.NumberFormat
 import java.util.*
 
@@ -20,15 +24,41 @@ class MainActivity : AppCompatActivity() {
         // sempre zerar a lista antes de carregar os itens
         adapter.clear()
 
-        // atribuindo a lista global com todos os itens
-        adapter.addAll(produtosGlobal)
+        // buscando os dados no banco de dados
+        database.use {
 
-        // somando todos os itens
-        var soma = produtosGlobal.sumByDouble { it.valor * it.quantidade }
+            // esecutando o select
+            select("produtos").exec {
+                // criando o parser que montará o objeto do produto
+                val parser = rowParser {
+                        id: Int,
+                        nome: String,
+                        quantidade: Int,
+                        valor: Double,
+                        foto: ByteArray? ->
+                                // colunas do banco de dados
+                            // montagem do objeto produto, com as colunas do banco
+                            Produto(id, nome, quantidade, valor, foto?.toBitmap())
+                }
 
-        // formatando saida
-        val f = NumberFormat.getCurrencyInstance(Locale("pt", "br"))
-        txt_total.text = "TOTAL: ${f.format(soma)}"
+                // criando a lista de produtos com os dados do banco
+                var listaProdutos = parseList(parser)
+
+                // limpando dados da lista
+                adapter.clear()
+
+                // atribuindo a lista global com todos os itens
+                adapter.addAll(listaProdutos)
+
+                //efetuando a multiplicação e soma da quantidade e valor
+                // somando todos os itens
+                var soma = listaProdutos.sumByDouble { it.valor * it.quantidade }
+
+                // formatando saida
+                val f = NumberFormat.getCurrencyInstance(Locale("pt", "br"))
+                txt_total.text = "TOTAL: ${f.format(soma)}"
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,11 +84,27 @@ class MainActivity : AppCompatActivity() {
             // buscando o item clicado
             val item = produtosAdapter.getItem(position)
 
+            // removendo do banco de dados
+            deletarProduto(item.id)
+
             // removendo da lista
             produtosAdapter.remove(item)
 
+            toast("Item deletado com sucesso!")
+
             // retornando que o click foi realizado com sucesso
             true
+        }
+    }
+
+    // função para remover um item do banco de dados
+    fun deletarProduto(idProduto:Int){
+        database.use {
+            delete(
+                    "produtos",
+                    "id = {id}",
+                    "id" to idProduto
+            )
         }
     }
 }
