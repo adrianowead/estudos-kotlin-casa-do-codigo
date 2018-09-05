@@ -1,5 +1,6 @@
 package br.com.livrokotlin.listadecompras
 
+import android.annotation.SuppressLint
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -15,6 +16,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    @SuppressLint("SetTextI18n")
     override fun onResume() {
         super.onResume()
 
@@ -85,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             val item = produtosAdapter.getItem(position)
 
             // removendo do banco de dados
-            deletarProduto(item.id)
+            deletarProduto(idProduto = item.id.toInt())
 
             // removendo da lista
             produtosAdapter.remove(item)
