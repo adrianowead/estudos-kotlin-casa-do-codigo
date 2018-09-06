@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
             delete(
                     "produtos",
                     "id = {id}",
-                    "id" to idProduto
+                    arrayOf(idProduto.toString())
             )
         }
     }
