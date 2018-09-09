@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.db.delete
 import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.rowParser
 import org.jetbrains.anko.db.select
@@ -20,47 +21,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        // recuperando o adapter
-        val adapter = list_view_produtos.adapter as ProdutoAdapter
-
-        // sempre zerar a lista antes de carregar os itens
-        adapter.clear()
-
-        // buscando os dados no banco de dados
-        database.use {
-
-            // esecutando o select
-            select("produtos").exec {
-                // criando o parser que montará o objeto do produto
-                val parser = rowParser {
-                        id: Int,
-                        nome: String,
-                        quantidade: Int,
-                        valor: Double,
-                        foto: ByteArray? ->
-                                // colunas do banco de dados
-                            // montagem do objeto produto, com as colunas do banco
-                            Produto(id, nome, quantidade, valor, foto?.toBitmap())
-                }
-
-                // criando a lista de produtos com os dados do banco
-                var listaProdutos = parseList(parser)
-
-                // limpando dados da lista
-                adapter.clear()
-
-                // atribuindo a lista global com todos os itens
-                adapter.addAll(listaProdutos)
-
-                //efetuando a multiplicação e soma da quantidade e valor
-                // somando todos os itens
-                var soma = listaProdutos.sumByDouble { it.valor * it.quantidade }
-
-                // formatando saida
-                val f = NumberFormat.getCurrencyInstance(Locale("pt", "br"))
-                txt_total.text = "TOTAL: ${f.format(soma)}"
-            }
-        }
+        atualizarListaEtotal();
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,10 +53,56 @@ class MainActivity : AppCompatActivity() {
             // removendo da lista
             produtosAdapter.remove(item)
 
+            atualizarListaEtotal()
+
             toast("Item deletado com sucesso!")
 
             // retornando que o click foi realizado com sucesso
             true
+        }
+    }
+
+    fun atualizarListaEtotal(){
+        // recuperando o adapter
+        val adapter = list_view_produtos.adapter as ProdutoAdapter
+
+        // sempre zerar a lista antes de carregar os itens
+        adapter.clear()
+
+        // buscando os dados no banco de dados
+        database.use {
+
+            // esecutando o select
+            select("produtos").exec {
+                // criando o parser que montará o objeto do produto
+                val parser = rowParser {
+                    id: Int,
+                    nome: String,
+                    quantidade: Int,
+                    valor: Double,
+                    foto: ByteArray? ->
+                    // colunas do banco de dados
+                    // montagem do objeto produto, com as colunas do banco
+                    Produto(id, nome, quantidade, valor, foto?.toBitmap())
+                }
+
+                // criando a lista de produtos com os dados do banco
+                var listaProdutos = parseList(parser)
+
+                // limpando dados da lista
+                adapter.clear()
+
+                // atribuindo a lista global com todos os itens
+                adapter.addAll(listaProdutos)
+
+                //efetuando a multiplicação e soma da quantidade e valor
+                // somando todos os itens
+                var soma = listaProdutos.sumByDouble { it.valor * it.quantidade }
+
+                // formatando saida
+                val f = NumberFormat.getCurrencyInstance(Locale("pt", "br"))
+                txt_total.text = "TOTAL: ${f.format(soma)}"
+            }
         }
     }
 
@@ -104,8 +111,8 @@ class MainActivity : AppCompatActivity() {
         database.use {
             delete(
                     "produtos",
-                    "id = {id}",
-                    arrayOf(idProduto.toString())
+                    "id = {idProd}",
+                    "idProd" to idProduto
             )
         }
     }
