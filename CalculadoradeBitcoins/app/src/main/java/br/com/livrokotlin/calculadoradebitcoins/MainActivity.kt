@@ -3,6 +3,10 @@ package br.com.livrokotlin.calculadoradebitcoins
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.bloco_cotacao.*
+import kotlinx.android.synthetic.main.bloco_entrada.*
+import kotlinx.android.synthetic.main.bloco_entrada_bitcoin.*
+import kotlinx.android.synthetic.main.bloco_saida.*
+import kotlinx.android.synthetic.main.bloco_saida_reais.*
 import java.net.URL
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -20,6 +24,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         buscarCotacao()
+
+        // listener do botão calcular btc
+        btn_calcular.setOnClickListener{
+            calcular()
+        }
+
+        // listener do botão calcular reais
+        btn_calcular_real.setOnClickListener{
+            calcularReais()
+        }
     }
 
     fun buscarCotacao(){
@@ -40,5 +54,43 @@ class MainActivity : AppCompatActivity() {
                 txt_cotacao.setText("$cotacaoFormatada")
             }
         }
+    }
+
+    fun calcular(){
+        if(txt_valor.text.isEmpty()){
+            txt_valor.error = "Preencha um valor"
+
+            return
+        }
+
+        // valor digitado pelo usuário
+        val valor_digitado = txt_valor.text.toString()
+                .replace(",",".")
+                .toDouble()
+
+        // calculando a divisão, se a cotação for zero, manter zero
+        val resultado = if(cotacaoBitcoin > 0) valor_digitado / cotacaoBitcoin else 0.0
+
+        // atualizando quantidade de bitcoins com oito casas decimais
+        txt_qtd_bitcoins.text = "%.8f".format(resultado)
+    }
+
+    fun calcularReais(){
+        if(txt_valor_btc.text.isEmpty()){
+            txt_valor_btc.error = "Preencha um valor"
+
+            return
+        }
+
+        // valor digitado pelo usuário
+        val valor_digitado = txt_valor_btc.text.toString()
+                .replace(",",".")
+                .toDouble()
+
+        // calculando a multiplicacao, se a cotação for zero, manter zero
+        val resultado = if(cotacaoBitcoin > 0) valor_digitado * cotacaoBitcoin else 0.0
+
+        // atualizando quantidade de bitcoins com oito casas decimais
+        txt_qtd_reais.text = "%.2f".format(resultado)
     }
 }

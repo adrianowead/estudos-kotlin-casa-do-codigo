@@ -13,5 +13,7 @@
     <include layout="@layout/bloco_cotacao" />
     <include layout="@layout/bloco_entrada" />
     <include layout="@layout/bloco_saida" />
+    <include layout="@layout/bloco_entrada_bitcoin" />
+    <include layout="@layout/bloco_saida_reais" />
 
 </android.support.v7.widget.LinearLayoutCompat>
