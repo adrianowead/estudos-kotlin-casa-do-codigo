@@ -2,11 +2,13 @@ package br.com.livrokotlin.calculadoradebitcoins
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import org.jetbrains.anko.alert
+import kotlinx.android.synthetic.main.bloco_cotacao.*
 import java.net.URL
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import org.json.JSONObject
+import java.text.NumberFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,8 +32,12 @@ class MainActivity : AppCompatActivity() {
             // recuperando o valor da última cotação dentro do objeto json
             cotacaoBitcoin = JSONObject(resposta).getJSONObject("ticker").getDouble("last")
 
+            // formatação em moeda
+            val f = NumberFormat.getCurrencyInstance(Locale("pt", "br"))
+            val cotacaoFormatada = f.format(cotacaoBitcoin)
+
             uiThread {
-                alert("$cotacaoBitcoin").show()
+                txt_cotacao.setText("$cotacaoFormatada")
             }
         }
     }
